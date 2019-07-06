@@ -24,7 +24,10 @@
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
 </head>
-
+<?php
+  include("$_SERVER[DOCUMENT_ROOT]/modals/login.php");  
+  include("$_SERVER[DOCUMENT_ROOT]/modals/register.php");
+?>
 <body id="page-top">
 
   <!-- Navigation -->
@@ -46,7 +49,14 @@
             <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
             
           </li>
-          
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#registerModal">Register</a>
+            
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+            
+          </li>
         </ul>
       </div>
     </div>
@@ -101,7 +111,7 @@
   <!-- Footer -->
   <footer class="py-5 bg-dark">
     <div class="container">
-      <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
+      <p class="m-0 text-center text-white">Copyright &copy;  B Y Lee 2019</p>
     </div>
     <!-- /.container -->
   </footer>
