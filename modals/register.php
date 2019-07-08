@@ -32,15 +32,18 @@
                       
                       
                   
-      </div>
-      <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-default" name = "register" value="Submit">Submit</button>
-        </form>
-
+      
+              <div style="text-align: center;">
+                <button type="submit" class="btn btn-light" name = "register" value="Submit">Submit</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                
+             </div>
         
+        </form>
       </div>
-      <form action="<?php echo $loginUrl; ?>" method="post">
+        
+      <div class="modal-footer">
+        <form action="<?php echo $loginUrl; ?>" method="post">
           <div style="display: table; margin: 0 auto;">
             <button type="submit" class="btn btn-primary" >
               Sign in with FaceBook
@@ -48,6 +51,7 @@
           </div>
         </form>
         <br/>
+      </div>
     </div>
 
   </div>
