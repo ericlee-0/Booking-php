@@ -27,6 +27,7 @@
 <?php
   include("$_SERVER[DOCUMENT_ROOT]/modals/login.php");  
   include("$_SERVER[DOCUMENT_ROOT]/modals/register.php");
+  include "init.php";
 ?>
 <body id="page-top">
 
