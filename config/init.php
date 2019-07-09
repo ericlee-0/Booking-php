@@ -1,8 +1,10 @@
 <?php
+//if production mode
 if(getenv('CLEARDB_DATABASE_URL')){
     $url = parse_url(getenv("CLEARDB_DATABASE_URL"));
 
 }
+// development mode
 else{
     include("$_SERVER[DOCUMENT_ROOT]/config.php");
     
