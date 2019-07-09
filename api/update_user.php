@@ -20,7 +20,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 
 // files needed to connect to database
-include("$_SERVER[DOCUMENT_ROOT]/config/database.php");
+include("$_SERVER[DOCUMENT_ROOT]/config/Database.php");
 include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
 
 

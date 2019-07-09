@@ -1,6 +1,8 @@
 <?php
 
 include("$_SERVER[DOCUMENT_ROOT]/config/init.php");
+include("$_SERVER[DOCUMENT_ROOT]/config/Database.php");
+include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
 
 
 
@@ -15,8 +17,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 // database connection will be here
 // files needed to connect to database
 
-include("$_SERVER[DOCUMENT_ROOT]/config/database.php");
-include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
+
 
  
 // get database connection

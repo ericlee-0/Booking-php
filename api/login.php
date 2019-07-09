@@ -13,7 +13,7 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
  
 // database connection will be here
-include("$_SERVER[DOCUMENT_ROOT]/config/database.php");
+include("$_SERVER[DOCUMENT_ROOT]/config/Database.php");
 include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
 
 use \Firebase\JWT\JWT;
