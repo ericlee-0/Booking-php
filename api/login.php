@@ -1,6 +1,7 @@
 <?php
 
 // require "vendor/autoload.php";
+session_start();
 include("$_SERVER[DOCUMENT_ROOT]/vendor/autoload.php");
 include("$_SERVER[DOCUMENT_ROOT]/config/init.php");
 
@@ -16,8 +17,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 include("$_SERVER[DOCUMENT_ROOT]/config/Database.php");
 include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
 
-use \Firebase\JWT\JWT;
-include("$_SERVER[DOCUMENT_ROOT]/config/jwtcore.php");
+
 
  
     // get database connection
@@ -36,7 +36,8 @@ include("$_SERVER[DOCUMENT_ROOT]/config/jwtcore.php");
     $email_exists = $user->emailExists();
     
     // files for jwt will be here
-
+    use \Firebase\JWT\JWT;
+    include("$_SERVER[DOCUMENT_ROOT]/config/jwtcore.php");
     
     
 
@@ -61,6 +62,10 @@ include("$_SERVER[DOCUMENT_ROOT]/config/jwtcore.php");
     
         // generate jwt
         $jwt = JWT::encode($token, $key);
+        
+        //store jwt to session
+        $_SESSION['jwt'] = 	$jwt;
+
         echo json_encode(
                 array(
                     "message" => "Successful login.",

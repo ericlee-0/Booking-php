@@ -74,6 +74,9 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
                     )
                 );
                 $jwt = JWT::encode($token, $key);
+
+                //store jwt to session
+                $_SESSION['jwt'] = 	$jwt;
                 
                 // set response code
                 http_response_code(200);

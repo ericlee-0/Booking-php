@@ -39,7 +39,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     $user->email = $data->email;
     $user->password = $data->password;
  
-// use the create() method here
+
 // create the user
     if(
         !empty($user->userName) &&
@@ -50,9 +50,10 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     
         // set response code
         http_response_code(200);
-    
+        $_SESSION['userName'] = $user->userName;
         // display message: user was created
         echo json_encode(array("message" => "User was created."));
+        
     }
     
     // message if unable to create user

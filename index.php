@@ -22,13 +22,32 @@
 
   <!-- Plugin JavaScript -->
   <script src="js/jquery-easing/jquery.easing.min.js"></script>
+  
 
 </head>
 <?php
   require "vendor/autoload.php";
-  include("$_SERVER[DOCUMENT_ROOT]/modals/login.php");  
+  session_start();
+  // session_unset();
+  include("$_SERVER[DOCUMENT_ROOT]/modals/update.php");
+  include("$_SERVER[DOCUMENT_ROOT]/modals/login.php");
+  include("$_SERVER[DOCUMENT_ROOT]/modals/loginConfirm.php");
   include("$_SERVER[DOCUMENT_ROOT]/modals/register.php");
+  include("$_SERVER[DOCUMENT_ROOT]/modals/registConfirm.php");
+  include("$_SERVER[DOCUMENT_ROOT]/modals/logout.php");
   // include "init.php";
+  // isset($_SESSION['jwt'])? echo $_SESSION['jwt']:"";
+  // if(isset($_SESSION['jwt'])){
+    // echo "<br/>"."<br/>"."<br/>".$_SESSION['jwt'];
+    
+    // var_dump($_SESSION['user_id']);
+  // }
+  // else{
+  //   echo "<br/>"."<br/>"."<br/>"."kajshdfkjahsdkfjhaskdjfhskajdf";
+    
+  // }
+  // echo "<br/>"."<br/>"."<br/>"."kajshdfkjahsdkfjhaskdjfhskajdf";
+  
 ?>
 <body id="page-top">
 
@@ -51,14 +70,35 @@
             <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
             
           </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#registerModal">Register</a>
+          <?php if(!isset($_SESSION['jwt'])): ?>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#registerModal">Register</a>
+              
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+              
+            </li>
+          <?php else: ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                User Name
+              </a>
+                <div class="dropdown-menu dropdown-menu-right animate slideIn" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Manage Account</a>
+                  <a class="dropdown-item" href="#">Admin Mode</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+                
+            </li>
+            <li class="nav-item">
             
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+            <a class="nav-link js-scroll-trigger" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>
             
-          </li>
+            </li>
+          <?php endif;?>
+
         </ul>
       </div>
     </div>
@@ -122,6 +162,14 @@
 
   <!-- Custom JavaScript for this theme -->
   <script src="js/scrolling-nav.js"></script>
+
+  <script>
+   
+
+   
+
+    
+  </script>
 
 </body>
 
