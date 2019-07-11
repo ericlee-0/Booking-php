@@ -11,7 +11,7 @@
         
       </div>
       <div class="modal-body">
-        <form  action="" method ="post" id="sign_up_form">
+        <form  action="" method ="post" id="sign_up_form" name='registration' >
 
                       <div class="form-group" onsubmit="">
                         <label for="username">Username:</label>
@@ -27,7 +27,7 @@
                       </div>
                       <div class="form-group">
                         <label for="pwd">Confirm Password:</label>
-                        <input type="password" class="form-control" id="pwd" name="password-confirm">
+                        <input type="password" class="form-control" id="pwd-confirm" name="password-confirm">
                       </div>
                       
                       
@@ -57,6 +57,34 @@
 </div>
 
 <script>
+  //form validation
+  function validateForm() {
+    var userName = document.forms["sign_up_form"]["userName"].value;
+    var email = document.forms["sign_up_form"]["email"].value;
+    var password = document.forms["sign_up_form"]["password"].value;
+    var passwordConfirm = document.forms["sign_up_form"]["password-confirm"].value;
+    //regex of email format
+    var mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (userName == "") {
+      alert("Username must be filled out");
+      return false;
+    }
+    if(!email.match(mailFormat)){
+      alert("Invalid email format");
+      return false;
+    }
+    if(password.length < 4){
+      alert("Password has to be more then 4 characters");
+      return false;
+    }
+    if(password !== passwordConfirm ){
+      alert("Your password and confirmation password do not match.");
+      return false;
+    }
+    
+    return true;
+  }
+
   $(document).ready(function(){
 
     // function to make form values to json format
@@ -85,7 +113,11 @@
       var sign_up_form=$(this);
       var form_data=JSON.stringify(sign_up_form.serializeObject());
       
-      
+      if(!validateForm()){
+        
+        return false;
+      }
+
         $.ajax({
             url: "api/create_user.php",
             type : "POST",
@@ -97,8 +129,9 @@
                 // if response is a success, tell the user it was a successful sign up & empty the input boxes
                 
                 $('#registerModal').modal('hide');
-                
+                $('#sign_up_form')[0].reset();
                 $('#registConfirmModal').modal('show');
+
             },
             error: function(xhr, resp, text){
                 // on error, tell the user sign up failed

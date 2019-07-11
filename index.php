@@ -15,6 +15,8 @@
 
   <!-- Custom styles for this template -->
   <link href="css/scrolling-nav.css" rel="stylesheet">
+  <!-- Basic stylesheet -->
+  
 
   <!-- Bootstrap core JavaScript -->
   <script src="js/jquery/jquery.min.js"></script>
@@ -22,6 +24,7 @@
 
   <!-- Plugin JavaScript -->
   <script src="js/jquery-easing/jquery.easing.min.js"></script>
+  
   
 
 </head>
