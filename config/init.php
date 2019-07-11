@@ -1,7 +1,7 @@
 <?php
 //if production mode
-if(getenv('CLEARDB_DATABASE_URL')){
-    $url = parse_url(getenv("CLEARDB_DATABASE_URL"));
+if(getenv('JAWSDB_URL')){
+    $url = parse_url(getenv("JAWSDB_URL"));
     $redirectUri = "https://" . $_SERVER['HTTP_HOST'];
 
 }
@@ -9,7 +9,7 @@ if(getenv('CLEARDB_DATABASE_URL')){
 else{
     include("$_SERVER[DOCUMENT_ROOT]/config.php");
     
-    $url = parse_url(CLEARDB_DATABASE_URL);
+    $url = parse_url(JAWSDB_URL);
     $redirectUri = isset($_SERVER['HTTPS']) ? 'https' : 'http' . "://" . $_SERVER['HTTP_HOST'];
 }
 

@@ -50,7 +50,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     
         // set response code
         http_response_code(200);
-        $_SESSION['userName'] = $user->userName;
+        
         // display message: user was created
         echo json_encode(array("message" => "User was created."));
         

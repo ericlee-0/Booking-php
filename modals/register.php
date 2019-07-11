@@ -58,13 +58,14 @@
 
 <script>
   //form validation
-  function validateForm() {
-    var userName = document.forms["sign_up_form"]["userName"].value;
-    var email = document.forms["sign_up_form"]["email"].value;
-    var password = document.forms["sign_up_form"]["password"].value;
-    var passwordConfirm = document.forms["sign_up_form"]["password-confirm"].value;
+  function validateForm(formName) {
+    var userName = document.forms[formName]["userName"].value;
+    var email = document.forms[formName]["email"].value;
+    var password = document.forms[formName]["password"].value;
+    var passwordConfirm = document.forms[formName]["password-confirm"].value;
     //regex of email format
     var mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    
     if (userName == "") {
       alert("Username must be filled out");
       return false;
@@ -113,7 +114,7 @@
       var sign_up_form=$(this);
       var form_data=JSON.stringify(sign_up_form.serializeObject());
       
-      if(!validateForm()){
+      if(!validateForm('sign_up_form')){
         
         return false;
       }

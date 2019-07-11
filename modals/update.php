@@ -22,11 +22,11 @@
                         <input type="text" class="form-control" id="email" name = "email">
                       </div>
                       <div class="form-group">
-                        <label for="pwd">Password:</label>
+                        <label for="pwd">New Password:</label>
                         <input type="password" class="form-control" id="pwd" name="password">
                       </div>
                       <div class="form-group">
-                        <label for="pwd">Confirm Password:</label>
+                        <label for="pwd">Confirm New Password:</label>
                         <input type="password" class="form-control" id="pwd-confirm" name="password-confirm">
                       </div>
                       
@@ -47,6 +47,8 @@
   </div>
 </div>
 <script>
+
+    
     $('#updateModal').on('show.bs.modal', function (e) {
      
        // get jwt from the cookie
@@ -80,7 +82,11 @@
     // validate jwt to verify access
     var jwt = getCookie('jwt');
     
-
+    //form validataion
+    if(!validateForm('update_account_form')){
+        
+        return false;
+      }
 
     // get form data and jwt here// get form data
     var update_account_form_obj = update_account_form.serializeObject()
