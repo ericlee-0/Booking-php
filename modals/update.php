@@ -56,9 +56,9 @@
   
           // html form for updating user account will be here
          
-         
+        console.log(result.data);
          //set original user info to the form
-         $('.modal-body #username').val(result.data.username);
+         $('.modal-body #username').val(result.data.userName);
          $('.modal-body #email').val(result.data.email);
         
         
@@ -107,6 +107,9 @@
               // store new jwt to coookie
             setCookie("jwt", result.jwt, 1);
 
+            $('#userNameDisplay').html(result.userName);
+
+            
             
               
           },

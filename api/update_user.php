@@ -58,6 +58,9 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
             $user->id = $decoded->data->id;
 
             
+            
+
+            
             // update user will be here
             if($user->update()){
                 // regenerate jwt will be here
@@ -69,7 +72,7 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
                     "nbf" => $nbf,
                     "data" => array(
                         "id" => $user->id,
-                        "userame" => $user->userName,
+                        "userName" => $user->userName,
                         "email" => $user->email
                     )
                 );
@@ -86,7 +89,7 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
                         array(
                             "message" => "User was updated.",
                             "jwt" => $jwt,
-                           
+                            "userName"=> $user->userName,
                         )
                     );
             }

@@ -52,7 +52,7 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
         "nbf" => $nbf,
         "data" => array(
             "id" => $user->id,
-            "username" => $user->userName,
+            "userName" => $user->userName,
             "email" => $user->email
         )
         );
@@ -65,11 +65,13 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
         
         //store jwt to session
         $_SESSION['jwt'] = 	$jwt;
+        
 
         echo json_encode(
                 array(
                     "message" => "Successful login.",
                     "jwt" => $jwt,
+                    "userName"=> $user->userName,
                     $user->emailExists()
                 )
             );

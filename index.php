@@ -84,8 +84,9 @@
             </li>
           <?php else: ?>
             <li class="nav-item dropdown">
+            
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                User Name
+              <span id="userNameDisplay" >User</span>
               </a>
                 <div class="dropdown-menu dropdown-menu-right animate slideIn" aria-labelledby="navbarDropdown">
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Manage Account</a>
@@ -168,7 +169,30 @@
 
   <script>
    
+    $(document).ready(function(){
+      
+      if(getCookie('jwt')){
+        // get jwt from the cookie
+        var jwt = getCookie('jwt');
+          //get user info with jwt
+          $.post("api/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
+    
+            
+          //display username on the manu navbar
+          $('#userNameDisplay').html(result.data.userName);
+          
+          
+        })
+        // on error/fail, tell the user he needs to login to show the account page
+        .fail(function(result){
+            // alert('Please login first!');
+            console.log(result);
+          
+          });
 
+      }
+      
+    })
    
 
     
