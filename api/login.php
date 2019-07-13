@@ -72,6 +72,7 @@ include("$_SERVER[DOCUMENT_ROOT]/classes/User.php");
                     "message" => "Successful login.",
                     "jwt" => $jwt,
                     "userName"=> $user->userName,
+                    "userId"=> $user->id,
                     $user->emailExists()
                 )
             );

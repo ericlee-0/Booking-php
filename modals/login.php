@@ -109,7 +109,7 @@
       // get form data
       var login_form=$(this);
       var form_data=JSON.stringify(login_form.serializeObject());
-  
+      
       
       // submit form data to api
       $.ajax({
@@ -123,6 +123,7 @@
               // store jwt to cookie
               result = JSON.parse(result);
               setCookie("jwt", result.jwt, 1);
+              setCookie('userId',result.userId,1);
               
               $('#loginModal').modal('hide');
                 

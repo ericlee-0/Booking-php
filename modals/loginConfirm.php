@@ -27,7 +27,15 @@
 <script>
   $(document).ready(function(){
     $('button[name="backHome"]').on('click', function(){
-      window.location.href = "/";
+      //if cookie has reservation info then go to reservation section
+      if(getCookie('reservInfo')){
+        window.location.href = '/#reservation';
+      }
+      //otherwise goto main
+      else{
+        window.location.href = "/";
+      }
+      
     })
   })  
 

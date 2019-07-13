@@ -46,6 +46,7 @@
 <script>
   $(document).ready(function(){
     $('button[name="logout"]').on('click', function(){
+      setCookie('userId',"",0);
       // window.location.href = "/";
       // console.log('button logout clicked');
       

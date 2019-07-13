@@ -12,18 +12,27 @@
 
   <!-- Bootstrap core CSS -->
   <link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
+  
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <!-- Custom styles for this template -->
   <link href="css/scrolling-nav.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="css/jquery.datetimepicker.css" >
+  
+  <!-- Date time picker style -->
+  
   <!-- Basic stylesheet -->
   
 
   <!-- Bootstrap core JavaScript -->
   <script src="js/jquery/jquery.min.js"></script>
   <script src="js/bootstrap/js/bootstrap.bundle.min.js"></script>
+  
+
+
 
   <!-- Plugin JavaScript -->
   <script src="js/jquery-easing/jquery.easing.min.js"></script>
+  <script src="js/jquery.datetimepicker.full.min.js"></script>
   
   
 
@@ -70,6 +79,9 @@
             <a class="nav-link js-scroll-trigger" href="#services">Services</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#reservation">Reservation</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
             
           </li>
@@ -110,7 +122,7 @@
 
   <header class="bg-primary text-white">
     <div class="container text-center">
-      <h1>Welcome to Bookig systme</h1>
+      <h1>Welcome to Bookig System</h1>
       <p class="lead">This is restaurant's table reservaition web page</p>
     </div>
   </header>
@@ -143,7 +155,69 @@
     </div>
   </section>
 
-  <section id="contact">
+  <section id="reservation">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2>Book a table</h2>
+          <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut optio velit inventore, expedita quo laboriosam possimus ea consequatur vitae, doloribus consequuntur ex. Nemo assumenda laborum vel, labore ut velit dignissimos.</p>
+
+          <form id="book_table_form">
+            <div class="form-group row">
+              <label for="datepick" class="col-sm-2 col-form-label text-center"><i class="fa fa-calendar"></i><i class="far fa-calendar-alt"></i></label>
+              <div class="col-sm-6">
+              <div class="well">
+                <div  class="input-append">
+                  <input id ="datepicker"  type="text" class="form-control" placeholder="date" autocomplete="off" name="picked_date">
+                  <span class="add-on">
+                    <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                    </i>
+                  </span>
+                </div>
+              </div>
+              
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="timepick" class="col-sm-2 col-form-label text-center"><i class="fa fa-clock-o"></i></label>
+              <div class="col-sm-6">
+                <input id="timepicker" type="text" class="form-control"  placeholder="time" autocomplete="off" name="picked_time">
+              </div>
+            </div>
+            
+            <div class="form-group row">
+              <label for="numpick" class="col-sm-2 col-form-label text-center"><i class="fa fa-group"></i></label>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  
+                  <select class="form-control" id="peoplepicker" name="picked_people" >
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7+Contact Restaurant</option>
+
+                  </select>
+                
+                </div>
+              </div>
+            
+            <br/>
+            <button type="submit" class="btn btn-primary btn-large btn-block">Book Now</button>
+          </form>
+            
+          <div id="book_result">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section id="contact" class="bg-light">
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -191,11 +265,89 @@
           });
 
       }
+
+      if(getCookie('reservInfo')){
+        var reservInfo = getCookie('reservInfo');
+            reservInfo = JSON.parse(reservInfo);
+            console.log(reservInfo);
+            $('#datepicker').val(reservInfo.picked_date);
+            $('#timepicker').val(reservInfo.picked_time);
+            $('#peoplepicker').val(reservInfo.picked_people);
+      }
       
     })
    
+    
+    jQuery('#datepicker').datetimepicker({
+      timepicker:false,
+      format:'Y-m-d',
+    });
+             
+    jQuery('#timepicker').datetimepicker({
+      datepicker:false,
+      format:'H:i',
+      step: 15,
+      minTime:'11:20',
+      maxTime:'21:50'
+    });
+    
 
     
+        // trigger when book_table form is submitted
+    $(document).on('submit', '#book_table_form', function(e){
+      
+      e.preventDefault();
+      // get form data
+      var sign_up_form=$(this);
+          sign_up_form = sign_up_form.serializeObject();
+      
+      //validate reservaion date and time
+      if(!sign_up_form.picked_date){
+        alert('Choose date');
+        return false;
+      }
+      if(!sign_up_form.picked_time){
+        alert('Choose time');
+        return false;
+      }
+      //get userId from the cookie
+      if(getCookie('userId')){  
+        sign_up_form['userId'] = getCookie('userId');
+
+        var form_data=JSON.stringify(sign_up_form);
+        console.log(form_data);
+      //submit form data to api
+        $.ajax({
+            url: "api/create_reservation.php",
+            type : "POST",
+            contentType : 'application/json',
+            dataType:'text',
+            data : form_data,
+            success : function(result) {
+                // if response is a success, tell the user it was a successful sign up & empty the input boxes
+                // $('#book_result').html("<div class='alert alert-success'>Successful sign up. Please login.</div>");
+                // sign_up_form.find('input').val('');
+                console.log(result);
+            },
+            error: function(xhr, resp, text){
+                // on error, tell the user sign up failed
+                // $('#book_result').html("<div class='alert alert-danger'>Unable to book. Please change time or contact restaurant.</div>");
+                console.log(xhr, resp, text);
+            }
+        });
+      }
+      //if no userId then go login form
+      else{
+        
+        setCookie('reservInfo',JSON.stringify(sign_up_form),1);
+        console.log(getCookie('reservInfo'));
+        $('#loginModal').modal('show');
+      }
+
+      
+
+      return false;
+    });
   </script>
 
 </body>
