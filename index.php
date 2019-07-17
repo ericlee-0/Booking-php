@@ -32,7 +32,10 @@
 
   <!-- Plugin JavaScript -->
   <script src="js/jquery-easing/jquery.easing.min.js"></script>
+  <!-- jquery datetimepicker -->
   <script src="js/jquery.datetimepicker.full.min.js"></script>
+  <!-- google chart -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   
 
@@ -197,7 +200,7 @@
                     <option>4</option>
                     <option>5</option>
                     <option>6</option>
-                    <option>7+Contact Restaurant</option>
+                    <option disabled>7+Contact Restaurant</option>
 
                   </select>
                 
@@ -207,15 +210,104 @@
             <br/>
             <button type="submit" class="btn btn-primary btn-large btn-block">Book Now</button>
           </form>
-            
-          <div id="book_result">
-          </div>
+         
         </div>
+        <br/>
+        <br/>
+        <div id="book_result"></div>
+        <br/>
+        <br/>
+        <!--Div that will hold the pie chart-->
+        <!-- <div id="chart_div"></div> -->
+        <div class="row">
+          <div class="col-sm">
+              <div id="barchart_daily_div" ></div>
+          </div>
+          <br/>
+          <br>
+         
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div id="barchart_weekly_div" ></div>
+            </div>
+            <br/>
+            <br>
+           
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <div id="div_monthly_chart" ></div>
+                <br/>
+                
+            </div>
+            <br/>
+            <br>
+            
+        </div>
+        <div class="row">
+          
+          <div class="col-sm">
+                <div id="chart_div" ></div>
+                <br/>
+              
+            </div>
+            <br/>
+            <br>
+            <br/>
+            
+           
+        </div>
+        <form>
+        
+        </form>
+        <!-- <form action="" method="post" id="testF"> -->
+            <button class="btn btn-light btn_chart" id="btn_daily_chart" name="daily_chart" value="daily_chart" onClick="selectedButton()">Daily</button>
+            <button class="btn btn-light btn_chart" id="btn_weekly_chart" name="weekly_chart" value="weekly_chart" onClick="selectedButton()">Weekly</button>   
+            <button class="btn btn-light btn_chart" id="btn_monthly_chart" name="monthly_chart" value="monthly_chart" onClick="selectedButton()">Monthly</button>      
+            <button id="test1"  name="send_form" value="send">Add To Databse</button>
+            <button id="test2"  name="send_form2" value="save">Save</button>
+        <!-- </form> -->
       </div>
     </div>
   </section>
 
+<script>
+  $('#test1').on('click', function (e) {
+    // var dataT = $("#test").serialize() + '&submit='+ $(this).attr("value");
+    var dataT = $("#testF").serialize();
+    // console.log(dataT)
+    e.preventDefault();
+    // console.log("button>");
+    $.ajax({
+      type: 'POST',
+      url: 'api/posting.php',
+      data: {'send_form': dataT},
+      // dataType:'json',
+      success: function (res) {
+        // location.reload();
+        console.log(res);
+        // console.log(dataT);
+      }
+    });
 
+    // $.post('api/posting.php', $('#testF').serialize(), function(data){
+             
+    //          // show the response
+    //         //  $('#response').html(data);
+    //         console.log(data);
+    //         console.log("succeed")
+              
+    //      }).fail(function(res) {
+    //           console.log(res);
+    //          // just in case posting your form failed
+    //          alert( "Posting failed." );
+              
+    //      });
+   
+    return false;
+  });
+</script>
 
   <section id="contact" class="bg-light">
     <div class="container">
@@ -241,113 +333,293 @@
   <!-- Custom JavaScript for this theme -->
   <script src="js/scrolling-nav.js"></script>
 
-  <script>
-   
-    $(document).ready(function(){
-      
-      if(getCookie('jwt')){
-        // get jwt from the cookie
-        var jwt = getCookie('jwt');
-          //get user info with jwt
-          $.post("api/validate_token.php", JSON.stringify({ jwt:jwt })).done(function(result) {
-    
-            
-          //display username on the manu navbar
-          $('#userNameDisplay').html(result.data.userName);
-          
-          
-        })
-        // on error/fail, tell the user he needs to login to show the account page
-        .fail(function(result){
-            // alert('Please login first!');
-            console.log(result);
-          
-          });
+  <!-- Reservation js script -->
+  <script src="js/reservation.js"></script>
 
-      }
 
-      if(getCookie('reservInfo')){
-        var reservInfo = getCookie('reservInfo');
-            reservInfo = JSON.parse(reservInfo);
-            console.log(reservInfo);
-            $('#datepicker').val(reservInfo.picked_date);
-            $('#timepicker').val(reservInfo.picked_time);
-            $('#peoplepicker').val(reservInfo.picked_people);
-      }
-      
-    })
-   
-    
-    jQuery('#datepicker').datetimepicker({
-      timepicker:false,
-      format:'Y-m-d',
-    });
-             
-    jQuery('#timepicker').datetimepicker({
-      datepicker:false,
-      format:'H:i',
-      step: 15,
-      minTime:'11:20',
-      maxTime:'21:50'
-    });
-    
+  <script type="text/javascript">
 
-    
-        // trigger when book_table form is submitted
-    $(document).on('submit', '#book_table_form', function(e){
-      
-      e.preventDefault();
-      // get form data
-      var sign_up_form=$(this);
-          sign_up_form = sign_up_form.serializeObject();
-      
-      //validate reservaion date and time
-      if(!sign_up_form.picked_date){
-        alert('Choose date');
-        return false;
-      }
-      if(!sign_up_form.picked_time){
-        alert('Choose time');
-        return false;
-      }
-      //get userId from the cookie
-      if(getCookie('userId')){  
-        sign_up_form['userId'] = getCookie('userId');
+    //  // Load Charts and the corechart and barchart packages.
+    //  google.charts.load('current', {'packages':['bar']});
 
-        var form_data=JSON.stringify(sign_up_form);
-        console.log(form_data);
-      //submit form data to api
-        $.ajax({
-            url: "api/create_reservation.php",
-            type : "POST",
-            contentType : 'application/json',
-            dataType:'text',
-            data : form_data,
-            success : function(result) {
-                // if response is a success, tell the user it was a successful sign up & empty the input boxes
-                // $('#book_result').html("<div class='alert alert-success'>Successful sign up. Please login.</div>");
-                // sign_up_form.find('input').val('');
-                console.log(result);
-            },
-            error: function(xhr, resp, text){
-                // on error, tell the user sign up failed
-                // $('#book_result').html("<div class='alert alert-danger'>Unable to book. Please change time or contact restaurant.</div>");
-                console.log(xhr, resp, text);
-            }
-        });
-      }
-      //if no userId then go login form
-      else{
+    //   // Draw the pie chart and bar chart when Charts is loaded.
+    //   google.charts.setOnLoadCallback(drawChart);
+
+    //   // function drawChart() {
+
+    //   //   var data = new google.visualization.DataTable();
+    //   //   data.addColumn('string', 'Topping');
+    //   //   data.addColumn('number', 'Slices');
+    //   //   data.addRows([
+    //   //     ['Mushrooms', 3],
+    //   //     ['Onions', 1],
+    //   //     ['Olives', 1],
+    //   //     ['Zucchini', 1],
+    //   //     ['Pepperoni', 2]
+    //   //   ]);
+
+    //   //   var piechart_options = {title:'Pie Chart: How Much Pizza I Ate Last Night',
+    //   //                 width:400,
+    //   //                 height:300};
+    //   //   var piechart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+    //   //   piechart.draw(data, piechart_options);
+
+    //   //   var barchart_options = {title:'Barchart: How Much Pizza I Ate Last Night',
+    //   //                 width:400,
+    //   //                 height:300,
+    //   //                 legend: 'none'
+    //   //               };
+    //   //   var barchart = new google.visualization.BarChart(document.getElementById('barchart_div'));
+    //   //   barchart.draw(data, barchart_options);
+    //   // }
+
+      
+    //   function drawChart() {
+    //     var data = google.visualization.arrayToDataTable([
+    //       ['Week', 'Reserved Seat'],
+    //       ['Monday', 50],
+    //       ['Tuesday', 57],
+    //       ['Wednesday', 66],
+    //       ['Thrusday', 103],
+    //       ['Friday', 103],
+    //       ['Saturday', 83],
+    //       ['Sunday', 153]
+    //     ]);
+
+    //     var options = {
+    //       chart: {
+    //         title: 'Reservation Status',
+    //         subtitle: 'Reserved seat by week',
+    //       },
+    //       bars: 'vertical',
+    //       vAxis: {format: 'decimal'},
+    //       height: 400,
+    //       width:800,
+    //       colors: ['#1b9e77']
+    //     };
+
+    //     var chart = new google.charts.Bar(document.getElement('barchart_div'));
+
+    //     chart.draw(data, google.charts.Bar.convertOptions(options));
+
+    //     // var chart = new google.charts.Bar(document.getElementById('chart_div'));
+
+    //     // var chart = new google.charts.Bar(document.getElementById('chart_div'));
+
+    //     //   chart.draw(data, google.charts.Bar.convertOptions(options));
+
+
+
+
+       
+    //   }
+
+      google.charts.load('current', {'packages':['bar','corechart','table']});
+      google.charts.setOnLoadCallback(drawChartDaily);
+      google.charts.setOnLoadCallback(drawChartWeekly);
+      google.charts.setOnLoadCallback(drawChartMonthly);
+
+      $('#div_monthly_chart').hide();
+
+      function drawChartDaily() {
+        var data = google.visualization.arrayToDataTable([
+          ['Day', 'Reserved Seat'],
+          ['11:00', 4],
+          ['12:00', 6],
+          ['13:00', 8],
+          ['14:00', 5],
+          ['15:00', 4],
+          ['16:00', 8],
+          ['17:00', 9],
+          ['18:00', 12],
+          ['19:00', 14],
+          ['20:00', 16],
+          ['21:00', 4]
+        ]);
+
+        var options = {
+          chart: {
+            title: 'Reservation Status',
+            subtitle: 'Reserved seat by Daily'
+          },
+          bars: 'vertical',
+          vAxis: {format: 'decimal'},
+          height: 400,
+          width:800,
+          colors: ['#5691f0']
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('barchart_daily_div'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+
         
-        setCookie('reservInfo',JSON.stringify(sign_up_form),1);
-        console.log(getCookie('reservInfo'));
-        $('#loginModal').modal('show');
       }
 
-      
+      function drawChartWeekly() {
+        var data = google.visualization.arrayToDataTable([
+          ['Week', 'Reserved Seat'],
+          ['Monday', 50],
+          ['Tuesday', 57],
+          ['Wendesday', 66],
+          ['Thrusday', 103],
+          ['Friday', 103],
+          ['Saturday', 83],
+          ['Sunday', 153]
+        ]);
 
-      return false;
-    });
+        var options = {
+          chart: {
+            title: 'Reservation Status',
+            subtitle: 'Reserved seat by week',
+          },
+          bars: 'vertical',
+          vAxis: {format: 'decimal'},
+          height: 400,
+          width:800,
+          colors: ['#1b9e77']
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('barchart_weekly_div'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+
+        
+      }
+      function selectedButton(){
+        // console.log(event.srcElement.id);
+        return event.srcElement.id;
+      }
+      
+      function drawChartMonthly(btnId = 'btn_mothly_chart') {
+        
+
+        var rawData1=[
+          ['Month', 'Reserved Seat'],
+          ['January', 0]
+          
+        ]
+        var rawData2 = [
+          ['Month', 'Reserved Seat']
+        ];
+       // Create and populate the data tables.
+        var data = [];
+        data[0] = google.visualization.arrayToDataTable(rawData1);
+        data[1] = google.visualization.arrayToDataTable(rawData2);
+
+        var options = {
+          chart: {
+            title: 'Reservation Status',
+            subtitle: 'Reserved seat by month',
+          },
+          seriesType: "bars",
+          series: {5: {type: "line"}},
+          vAxis: {format: 'decimal'},
+          height: 400,
+          width: 800,
+          colors: ['#5562ed'],
+          animation:{
+            duration: 2000,
+            easing: 'out'
+          },
+          vAxis: {minValue:0, maxValue:300}
+        };
+
+        var btnId = selectedButton() || 'btn_monthly_chart';
+        // console.log(btnId);
+        
+        var current = 0;
+        // Create and draw the visualization.
+        var chart = new google.visualization.ComboChart(document.getElementById('div_monthly_chart'));
+        // var button = document.getElementById(btnId);
+        
+
+        function drawChart() {
+          // console.log(button);
+          // Disabling the button while the chart is drawing.
+          // button.disabled = true;
+          // google.visualization.events.addListener(chart, 'ready',
+          //     function() {
+          //       button.disabled = false;
+          //       // button.value = 'Switch to ' + (current ? 'Tea' : 'Coffee');
+          //     });
+          // options['title'] = 'Monthly ' + (current ? 'Coffee' : 'Tea') + ' Production by Country';
+
+          chart.draw(data[current], options);
+        }
+        drawChart();
+
+        function getChart(btnId){
+          console.log(btnId);
+          current = 1 - current;
+          $('#div_'+btnId).show();
+          //ajax post to fetch_chart_data.php
+          $.post("api/fetch_chart_data.php").done(function(result) {
+  
+            //set rawData2 with result data (month & reserved seat)
+            var i=1;
+            result.data.map((k) =>{
+
+              rawData2[i] = [k['display_date'],parseInt(k['total'])];
+
+              i++; 
+
+            });
+            //set to data with new rawData2
+            data[1] = google.visualization.arrayToDataTable(rawData2);
+            drawChart();
+          })
+          // on error/fail, tell the user he needs to login to show the account page
+          .fail(function(result){
+
+              console.log(result);
+            
+          });
+        }
+        
+        $('button').click(function(e){
+          // console.log($(this).val());
+          btnId = $(this).val();
+          getChart(btnId);
+          // button = document.getElementById(btnId);
+        })
+
+
+        // button.onclick = function(e) {
+        // button.onclick = function(e) {
+        //   console.log($(this).val());
+
+        //   e.preventDefault();
+        //   current = 1 - current;
+        //   $('#barchart_monthly_div').show();
+        //   //ajax post to fetch_chart_data.php
+        //   $.post("api/fetch_chart_data.php").done(function(result) {
+  
+        //     //set rawData2 with result data (month & reserved seat)
+        //     var i=1;
+        //     result.data.map((k) =>{
+
+        //       rawData2[i] = [k['display_date'],parseInt(k['total'])];
+
+        //       i++; 
+
+        //     });
+        //     //set to data with new rawData2
+        //     data[1] = google.visualization.arrayToDataTable(rawData2);
+        //     drawChart();
+        //   })
+        //   // on error/fail, tell the user he needs to login to show the account page
+        //   .fail(function(result){
+
+        //       console.log(result);
+            
+        //   });
+
+          
+        // }
+
+        
+      }
   </script>
 
 </body>

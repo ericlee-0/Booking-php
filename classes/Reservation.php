@@ -61,6 +61,38 @@ class Reservation {
 
         return $data;
     }
+
+    public function getMonthlyData(){
+        //query : count all reservation by monthly from current month  for 1 year
+        $query = "SELECT YEAR(date) AS yr
+                                , MONTH(date) AS mth
+                                , DATE_FORMAT(date,'%M %Y') AS display_date
+                                , COUNT(*) AS total
+                            FROM reservations 
+                            WHERE date >= CURRENT_DATE - INTERVAL 1 YEAR
+                            GROUP
+                            BY yr,mth
+                            ORDER
+                            BY yr ASC, mth ASC"
+                            ; 
+        
+        $stmt = $this->conn->prepare($query);
+        
+        //run query
+        if($stmt->execute()){
+
+            //reurn result
+            return $stmt->fetchAll();
+        };
+        return false;
+        
+
+    }
+
+    public function getWeeklyData($date){
+        //query : coun all reserved seat of current week
+
+    }
 }
 
 ?>
