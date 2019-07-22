@@ -62,28 +62,107 @@ class Reservation {
         return $data;
     }
 
-    public function getMonthlyData(){
-        //query : count all reservation by monthly from current month  for 1 year
-        $query = "SELECT YEAR(date) AS yr
-                                , MONTH(date) AS mth
-                                , DATE_FORMAT(date,'%M %Y') AS display_date
-                                , COUNT(*) AS total
-                            FROM reservations 
-                            WHERE date >= CURRENT_DATE - INTERVAL 1 YEAR
-                            GROUP
-                            BY yr,mth
-                            ORDER
-                            BY yr ASC, mth ASC"
-                            ; 
-        
-        $stmt = $this->conn->prepare($query);
-        
-        //run query
-        if($stmt->execute()){
+    public function getCurrentData($select){
+        if($select === 'month'){
+            //query : count all reservation by monthly from current month -+ 6 months
+            $query = "set @date_start := (SELECT CURDATE() - INTERVAL 6 MONTH), 
+            @date_end := (SELECT CURDATE() + INTERVAL 6 MONTH), 
+            @i := 0;";
+    
+            $query2 ="SELECT EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i:=@i+ 1 MONTH)) AS date1, IFNULL((
+                SELECT COUNT(*) FROM reservations AS m2
+                WHERE EXTRACT(YEAR_MONTH FROM m2.date) = EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i MONTH))
+            ),0) AS total
+            , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 MONTH), '%Y %M') AS display_date
+            FROM reservations AS m1
+            HAVING @i < TIMESTAMPDIFF(MONTH, @date_start, @date_end);";
+            
+            // $query = "SELECT YEAR(date) AS yr
+            //                 , MONTH(date) AS mth
+            //                 , DATE_FORMAT(date,'%M %Y') AS display_date
+            //                 , COUNT(*) AS total
+            //             FROM reservations 
+            //             WHERE date BETWEEN CURDATE() - INTERVAL 6 MONTH AND CURDATE() + INTERVAL 6 MONTH 
+            //             GROUP
+            //             BY yr,mth
+            //             ORDER
+            //             BY yr ASC, mth ASC;"
+            ; 
+        }
+        else if($select ==='week'){
+            //query count all reservations by daily from current day -+ 6 days
+            $query ="set @date_start := (SELECT CURDATE() - INTERVAL 6 DAY), 
+            @date_end := (SELECT CURDATE() + INTERVAL 6 DAY), 
+            @i := 0;";
+            $query2 = "SELECT DATE(ADDDATE(@date_start, INTERVAL @i:=@i+1 DAY)) AS date1, IFNULL((
+                SELECT COUNT(*) FROM reservations AS m2
+                WHERE DATE(m2.date) = DATE(ADDDATE(@date_start, INTERVAL @i DAY))
+            ),0) AS total
+            , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 DAY), '%W %m-%d') AS display_date
+            FROM reservations AS m1
+            HAVING @i < DATEDIFF(@date_end, @date_start);";
 
-            //reurn result
+            // $query = "SELECT MONTH(date) as month,
+            // DAY(date) as day,
+            // DATE_FORMAT(date,'%W %m-%d') AS display_date,
+            // COUNT(*) as total
+            // FROM reservations
+            // WHERE date BETWEEN DATE_SUB(NOW(), INTERVAL 4 DAY) AND DATE_ADD(NOW(), INTERVAL 4 DAY)
+            // GROUP BY month,day
+            // ORDER BY day ASC";
+
+
+        }
+        else if ($select === 'day'){
+            //query : count all reservations by hourly from 11:00 to 22:00
+            $query ="set @time_start := 100000, 
+            @time_end := 220000, 
+            @i := 0;";
+        
+            $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL 3 DAY,'%W %d %H:00') AS display_date,
+            IFNULL((
+                SELECT COUNT(*) FROM reservations AS m2
+                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = CURDATE()- INTERVAL 3 DAY
+            ),0) AS total
+            
+            FROM reservations AS m1
+            HAVING @i < TIMEDIFF(@time_end, @time_start);";
+            
+            // $query = "SELECT 
+            //                 DAY(date) as day,
+            //                 HOUR(time) as hour,
+            //                 TIME_FORMAT(time,'%H:00') AS display_date,
+            //             COUNT(*) as total 
+            //             FROM reservations 
+                        
+            //             WHERE date = CURDATE() + INTERVAL 0 DAY
+            //             GROUP BY hour, day
+            //             ORDER BY day";
+
+        }
+        
+        
+        
+        
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute();
+            $stmt = $this->conn->prepare($query2);
+            $stmt->execute();
             return $stmt->fetchAll();
-        };
+        }
+        catch (PDOException $e)
+        {
+            echo $e->getMessage();
+            die();
+        }
+        // $stmt = $this->conn->prepare($query);
+        // //run query
+        // if($stmt->execute()){
+
+        // //     //reurn result
+        //     return $stmt->fetchAll();
+        // };
         return false;
         
 

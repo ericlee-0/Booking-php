@@ -217,6 +217,9 @@
         <div id="book_result"></div>
         <br/>
         <br/>
+        <button class="btn btn-light btn_chart" id="btn_daily_chart" name="daily_chart" value="daily_chart" >Daily</button>
+        <button class="btn btn-light btn_chart" id="btn_weekly_chart" name="weekly_chart" value="weekly_chart" >Weekly</button>   
+        <button class="btn btn-light btn_chart" id="btn_monthly_chart" name="monthly_chart" value="monthly_chart" >Monthly</button> 
         <!--Div that will hold the pie chart-->
         <!-- <div id="chart_div"></div> -->
         <div class="row">
@@ -262,9 +265,7 @@
         
         </form>
         <!-- <form action="" method="post" id="testF"> -->
-            <button class="btn btn-light btn_chart" id="btn_daily_chart" name="daily_chart" value="daily_chart" onClick="selectedButton()">Daily</button>
-            <button class="btn btn-light btn_chart" id="btn_weekly_chart" name="weekly_chart" value="weekly_chart" onClick="selectedButton()">Weekly</button>   
-            <button class="btn btn-light btn_chart" id="btn_monthly_chart" name="monthly_chart" value="monthly_chart" onClick="selectedButton()">Monthly</button>      
+                
             <button id="test1"  name="send_form" value="send">Add To Databse</button>
             <button id="test2"  name="send_form2" value="save">Save</button>
         <!-- </form> -->
@@ -415,12 +416,12 @@
     //   }
 
       google.charts.load('current', {'packages':['bar','corechart','table']});
-      google.charts.setOnLoadCallback(drawChartDaily);
-      google.charts.setOnLoadCallback(drawChartWeekly);
+      // google.charts.setOnLoadCallback(drawChartDaily);
+      // google.charts.setOnLoadCallback(drawChartWeekly);
       google.charts.setOnLoadCallback(drawChartMonthly);
 
       $('#div_monthly_chart').hide();
-
+/*
       function drawChartDaily() {
         var data = google.visualization.arrayToDataTable([
           ['Day', 'Reserved Seat'],
@@ -491,7 +492,9 @@
         return event.srcElement.id;
       }
       
-      function drawChartMonthly(btnId = 'btn_mothly_chart') {
+      */
+
+      function drawChartMonthly() {
         
 
         var rawData1=[
@@ -522,11 +525,10 @@
             duration: 2000,
             easing: 'out'
           },
-          vAxis: {minValue:0, maxValue:300}
+          // vAxis: {minValue:0, maxValue:300}
         };
 
-        var btnId = selectedButton() || 'btn_monthly_chart';
-        // console.log(btnId);
+       
         
         var current = 0;
         // Create and draw the visualization.
@@ -548,75 +550,71 @@
           chart.draw(data[current], options);
         }
         drawChart();
-
-        function getChart(btnId){
-          console.log(btnId);
-          current = 1 - current;
-          $('#div_'+btnId).show();
-          //ajax post to fetch_chart_data.php
-          $.post("api/fetch_chart_data.php").done(function(result) {
-  
-            //set rawData2 with result data (month & reserved seat)
-            var i=1;
-            result.data.map((k) =>{
-
-              rawData2[i] = [k['display_date'],parseInt(k['total'])];
-
-              i++; 
-
-            });
-            //set to data with new rawData2
-            data[1] = google.visualization.arrayToDataTable(rawData2);
-            drawChart();
-          })
-          // on error/fail, tell the user he needs to login to show the account page
-          .fail(function(result){
-
-              console.log(result);
-            
-          });
-        }
         
-        $('button').click(function(e){
-          // console.log($(this).val());
-          btnId = $(this).val();
-          getChart(btnId);
-          // button = document.getElementById(btnId);
+        function getChart(btnVal){
+          console.log(btnVal);
+          // current = 1 - current;
+          current = 1 ;
+          $('#div_monthly_chart').show();
+          //ajax post to fetch_chart_data.php
+
+          
+          $.ajax({
+              url: "api/fetch_chart_data.php",
+              type : "POST",
+              // contentType : 'application/json',
+              // dataType:'text',
+              data : {chart: btnVal},
+              // data : cData,
+              success : function(result) {
+                  
+                  //set rawData2 with result data (month & reserved seat)
+                var i=1;
+                console.log(result);
+                // result = JSON.parse(result);
+                
+                //set chart title and color
+                if(btnVal ==='weekly_chart'){
+                  rawData2[0] = ['Week','Reservations'];
+                  options.colors[0] ="#5691f0";
+                  
+                }else if (btnVal ==='daily_chart'){
+                  rawData2[0] = ['Day', 'Reservations'];
+                  options.colors[0] ="#1b9e77";
+                  
+                }
+                //set data from result to rawData2
+                result.data.map((k) =>{
+                  rawData2[i] = [k['display_date'],parseInt(k['total'])];
+                  i++; 
+                });
+                //set to data with new rawData2
+                data[1] = google.visualization.arrayToDataTable(rawData2);
+                drawChart();
+                  
+                  // console.log(result);
+              },
+              error: function(xhr, resp, text){
+                  // on error, tell the user reservation failed
+                  
+                  console.log(xhr, resp, text);
+              }
+          });
+
+
+        }
+        // choose chart by click button
+        $('.btn_chart').click(function(e){
+
+          var btnVal = $(this).val();
+             console.log(btnVal)
+             getChart(btnVal);
+          
+
+         
         })
 
 
-        // button.onclick = function(e) {
-        // button.onclick = function(e) {
-        //   console.log($(this).val());
-
-        //   e.preventDefault();
-        //   current = 1 - current;
-        //   $('#barchart_monthly_div').show();
-        //   //ajax post to fetch_chart_data.php
-        //   $.post("api/fetch_chart_data.php").done(function(result) {
-  
-        //     //set rawData2 with result data (month & reserved seat)
-        //     var i=1;
-        //     result.data.map((k) =>{
-
-        //       rawData2[i] = [k['display_date'],parseInt(k['total'])];
-
-        //       i++; 
-
-        //     });
-        //     //set to data with new rawData2
-        //     data[1] = google.visualization.arrayToDataTable(rawData2);
-        //     drawChart();
-        //   })
-        //   // on error/fail, tell the user he needs to login to show the account page
-        //   .fail(function(result){
-
-        //       console.log(result);
-            
-        //   });
-
-          
-        // }
 
         
       }
