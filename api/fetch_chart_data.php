@@ -27,6 +27,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     $data = json_decode(file_get_contents("php://input"));
     
     // echo "fetch_chartdata.php".$data."<br/>";
+    // echo gettype($_POST['chartOption']);
     
     // if monthly data requested
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
@@ -66,21 +67,33 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
         }
         else if($_POST['chart']=== 'daily_chart'){
-            //if data exist
-            // echo json_encode(array("message" => "monthly data requested.")); 
-            if($reser->getCurrentData('day')){
-                http_response_code(200);
-                echo json_encode(array("message" => "fetched data",
-                                    
-                                        "data"=>$reser->getCurrentData('day')));
-            }
-            //if no data
-            else{
-                http_response_code(404);
-                // echo $data;
-                // display message: unable to get data
-                echo json_encode(array("message" => "Unable to fetch data."));
-            }
+        
+                $dateSelected=null;
+                // when selected date chart requested
+                if($_POST['chartOption']){
+                    if($_POST['chartOption']['picked_date_chart'] !== ""){
+                        $dateSelected = $_POST['chartOption']['picked_date_chart'];
+                    }
+                }
+                
+                    //if data exist
+                // echo json_encode(array("message" => "monthly data requested.")); 
+                if($reser->getCurrentData('day',$dateSelected)){
+                    http_response_code(200);
+                    echo json_encode(array("message" => "fetched data",
+                                        
+                                            "data"=>$reser->getCurrentData('day',$dateSelected)));
+                }
+                //if no data
+                else{
+                    http_response_code(404);
+                    // echo $data;
+                    // display message: unable to get data
+                    echo json_encode(array("message" => "Unable to fetch data."));
+                }
+
+            
+            
 
         }
         else{

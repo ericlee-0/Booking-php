@@ -14,7 +14,7 @@ $(document).ready(function(){
       })
       // on error/fail, tell the user he needs to login to show the account page
       .fail(function(result){
-          // alert('Please login first!');
+        //   alert('Please login first!');
           console.log(result);
         
         });
@@ -34,6 +34,11 @@ $(document).ready(function(){
  
   
   jQuery('#datepicker').datetimepicker({
+    timepicker:false,
+    format:'Y-m-d',
+  });
+
+  jQuery('#date_picker_chart').datetimepicker({
     timepicker:false,
     format:'Y-m-d',
   });

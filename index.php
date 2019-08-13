@@ -217,10 +217,99 @@
         <div id="book_result"></div>
         <br/>
         <br/>
-        <button class="btn btn-light btn_chart" id="btn_daily_chart" name="daily_chart" value="daily_chart" >Daily</button>
-        <button class="btn btn-light btn_chart" id="btn_weekly_chart" name="weekly_chart" value="weekly_chart" >Weekly</button>   
-        <button class="btn btn-light btn_chart" id="btn_monthly_chart" name="monthly_chart" value="monthly_chart" >Monthly</button> 
+        <div>
+          <H3>Reservation Status</H3>
+        </div>
+          <button class="btn btn-light btn_chart" id="btn_daily_chart" name="daily_chart" value="daily_chart" >Today</button>
+          <button class="btn btn-light btn_chart" id="btn_weekly_chart" name="weekly_chart" value="weekly_chart" >Weekly</button>   
+          <button class="btn btn-light btn_chart" id="btn_monthly_chart" name="monthly_chart" value="monthly_chart" >Monthly</button> 
+          <button class="btn btn-light " id="btn_advanced_chart" name="advanced_chart" value="advanced_chart" onclick="displayOption()" >Advanced Chart</button> 
         <!--Div that will hold the pie chart-->
+        
+          <div id="optionChart" style="display:none">
+            <form id="option_chart_form">
+              <br/>
+              <div class="form-group row">
+                GET CHART of SELECTED DATE :
+                <label for="datepick_chart" class="col-sm-1 col-form-label text-center"><i class="fa fa-calendar"></i><i class="far fa-calendar-alt"></i></label>
+                
+                <div class="col-sm-4">
+                    
+                  <div class="well">
+                    <div  class="input-append">
+                      <input id ="date_picker_chart"  type="text" class="form-control" placeholder="Select date" autocomplete="off" name="picked_date_chart">
+                      <span class="add-on">
+                        <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                        </i>
+                      </span>
+                      
+                    </div>
+                    
+                  </div>
+                
+                </div>
+                <button class="btn btn-light" id="btn_selected_daily_chart" type="submit" name="daily_chart" value="daily_chart" >Get</button>
+              </div>
+
+              <br/>
+              <div class="form-group row">
+                GET CHART of User :
+                <label for="user_pick_chart" class="col-sm-1 col-form-label text-center"><i class="fa fa-user"></i><i class="far fa-calendar-alt"></i></label>
+                
+                <div class="col-sm-4">
+                    
+                  <div class="well">
+                    <div  class="input-append">
+                      <input id ="user_chart"  type="text" class="form-control" placeholder="Name of user" autocomplete="off" name="picked_user_chart">
+                      <span class="add-on">
+                        <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                        </i>
+                      </span>
+                      
+                    </div>
+                    
+                  </div>
+                
+                </div>
+                <button class="btn btn-light" type="submit" id="btn_user_chart" name="monthly_chart" value="monthly_chart" >Get</button>
+              </div>
+
+              <br/>
+              <div class="form-group row">
+                GET CHART by number of guests :
+                <label for="number_geust_chart" class="col-sm-1 col-form-label text-center"><i class="fa fa-users"></i></label>
+                
+                <div class="">
+                    
+                    <select name="min_guest" class="">
+                      <option value="">min</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                          
+                    </select>
+                    -
+                    <select name="max_guest" class="">
+                      <option value="">max</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                          
+                    </select>
+                  </div>
+                <button class="btn btn-light" type="submit" id="btn_user_chart" name="monthly_chart" value="monthly_chart" style="margin-left: 15px;" >Get</button>
+              </div>
+            </form>
+          </div>
+          
+          
+
         <!-- <div id="chart_div"></div> -->
         <div class="row">
           <div class="col-sm">
@@ -339,81 +428,16 @@
 
 
   <script type="text/javascript">
+    function displayOption() {
+      var x = document.getElementById("optionChart");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+    }
 
-    //  // Load Charts and the corechart and barchart packages.
-    //  google.charts.load('current', {'packages':['bar']});
-
-    //   // Draw the pie chart and bar chart when Charts is loaded.
-    //   google.charts.setOnLoadCallback(drawChart);
-
-    //   // function drawChart() {
-
-    //   //   var data = new google.visualization.DataTable();
-    //   //   data.addColumn('string', 'Topping');
-    //   //   data.addColumn('number', 'Slices');
-    //   //   data.addRows([
-    //   //     ['Mushrooms', 3],
-    //   //     ['Onions', 1],
-    //   //     ['Olives', 1],
-    //   //     ['Zucchini', 1],
-    //   //     ['Pepperoni', 2]
-    //   //   ]);
-
-    //   //   var piechart_options = {title:'Pie Chart: How Much Pizza I Ate Last Night',
-    //   //                 width:400,
-    //   //                 height:300};
-    //   //   var piechart = new google.visualization.PieChart(document.getElementById('piechart_div'));
-    //   //   piechart.draw(data, piechart_options);
-
-    //   //   var barchart_options = {title:'Barchart: How Much Pizza I Ate Last Night',
-    //   //                 width:400,
-    //   //                 height:300,
-    //   //                 legend: 'none'
-    //   //               };
-    //   //   var barchart = new google.visualization.BarChart(document.getElementById('barchart_div'));
-    //   //   barchart.draw(data, barchart_options);
-    //   // }
-
-      
-    //   function drawChart() {
-    //     var data = google.visualization.arrayToDataTable([
-    //       ['Week', 'Reserved Seat'],
-    //       ['Monday', 50],
-    //       ['Tuesday', 57],
-    //       ['Wednesday', 66],
-    //       ['Thrusday', 103],
-    //       ['Friday', 103],
-    //       ['Saturday', 83],
-    //       ['Sunday', 153]
-    //     ]);
-
-    //     var options = {
-    //       chart: {
-    //         title: 'Reservation Status',
-    //         subtitle: 'Reserved seat by week',
-    //       },
-    //       bars: 'vertical',
-    //       vAxis: {format: 'decimal'},
-    //       height: 400,
-    //       width:800,
-    //       colors: ['#1b9e77']
-    //     };
-
-    //     var chart = new google.charts.Bar(document.getElement('barchart_div'));
-
-    //     chart.draw(data, google.charts.Bar.convertOptions(options));
-
-    //     // var chart = new google.charts.Bar(document.getElementById('chart_div'));
-
-    //     // var chart = new google.charts.Bar(document.getElementById('chart_div'));
-
-    //     //   chart.draw(data, google.charts.Bar.convertOptions(options));
-
-
-
-
-       
-    //   }
+  
 
       google.charts.load('current', {'packages':['bar','corechart','table']});
       // google.charts.setOnLoadCallback(drawChartDaily);
@@ -551,8 +575,9 @@
         }
         drawChart();
         
-        function getChart(btnVal){
+        function getChart(btnVal,optionValue=null){
           console.log(btnVal);
+          console.log(typeof(optionValue));
           // current = 1 - current;
           current = 1 ;
           $('#div_monthly_chart').show();
@@ -564,14 +589,17 @@
               type : "POST",
               // contentType : 'application/json',
               // dataType:'text',
-              data : {chart: btnVal},
-              // data : cData,
+              // dataType:'json',
+              data : {chart: btnVal,
+                      chartOption:optionValue
+              
+                    },
               success : function(result) {
                   
                   //set rawData2 with result data (month & reserved seat)
                 var i=1;
                 console.log(result);
-                // result = JSON.parse(result);
+              
                 
                 //set chart title and color
                 if(btnVal ==='weekly_chart'){
@@ -582,6 +610,9 @@
                   rawData2[0] = ['Day', 'Reservations'];
                   options.colors[0] ="#1b9e77";
                   
+                }
+                else{
+                  options.colors[0] ="#5562ed"
                 }
                 //set data from result to rawData2
                 result.data.map((k) =>{
@@ -595,7 +626,7 @@
                   // console.log(result);
               },
               error: function(xhr, resp, text){
-                  // on error, tell the user reservation failed
+                  // on error, tell the error message
                   
                   console.log(xhr, resp, text);
               }
@@ -612,12 +643,85 @@
           
 
          
-        })
+        });
+        // when advanced chart option was submitted
+        $(document).on('submit', '#option_chart_form', function(e){
+        
+          e.preventDefault();
+          // get form data
+          var option_chart_form=$(this);
+            option_chart_form = option_chart_form.serializeObject();
+          
+            console.log(option_chart_form);
+            if(option_chart_form.picked_date_chart){
+              getChart("daily_chart",option_chart_form);
+            }
+        
+        
+        
+        });
 
 
 
         
       }
+
+          // trigger when advanced_chart_form form is submitted
+      // $(document).on('submit', '#option_chart_form', function(e){
+        
+      //   e.preventDefault();
+      //   // get form data
+      //   var option_chart_form=$(this);
+      //     option_chart_form = option_chart_form.serializeObject();
+        
+        //validate reservaion date and time
+      //   if(!sign_up_form.picked_date){
+      //     alert('Choose date');
+      //     return false;
+      //   }
+      //   if(!sign_up_form.picked_time){
+      //     alert('Choose time');
+      //     return false;
+      //   }
+      //   //get userId from the cookie
+      //   if(getCookie('userId')){  
+      //     sign_up_form['userId'] = getCookie('userId');
+
+      //     var form_data=JSON.stringify(sign_up_form);
+      //     console.log(form_data);
+      //   //submit form data to api
+      //     $.ajax({
+      //         url: "api/create_reservation.php",
+      //         type : "POST",
+      //         contentType : 'application/json',
+      //         dataType:'text',
+      //         data : form_data,
+      //         success : function(result) {
+      //             // if response is a success, tell the user it was a successful sign up & empty the input boxes
+                  
+      //             showBookResult(sign_up_form);
+                  
+      //             console.log(result);
+      //         },
+      //         error: function(xhr, resp, text){
+      //             // on error, tell the user reservation failed
+                  
+      //             console.log(xhr, resp, text);
+      //         }
+      //     });
+      //   }
+      //   //if no userId then go login form
+      //   else{
+          
+      //     setCookie('reservInfo',JSON.stringify(sign_up_form),1);
+      //     console.log(getCookie('reservInfo'));
+      //     $('#loginModal').modal('show');
+      //   }
+
+        
+
+      //   return false;
+      // });
   </script>
 
 </body>

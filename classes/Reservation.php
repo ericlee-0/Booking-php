@@ -62,7 +62,7 @@ class Reservation {
         return $data;
     }
 
-    public function getCurrentData($select){
+    public function getCurrentData($select,$dateSelected=null){
         if($select === 'month'){
             //query : count all reservation by monthly from current month -+ 6 months
             $query = "set @date_start := (SELECT CURDATE() - INTERVAL 6 MONTH), 
@@ -117,12 +117,14 @@ class Reservation {
             //query : count all reservations by hourly from 11:00 to 22:00
             $query ="set @time_start := 100000, 
             @time_end := 220000, 
-            @i := 0;";
+            @i := 0,
+            @selected_date := :selected_date,
+            @date_diff = DATEDIFF(CURDATE(),@selected_date);";
         
-            $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL 3 DAY,'%W %d %H:00') AS display_date,
+            $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL @date_diff DAY,'%W %d %H:00') AS display_date,
             IFNULL((
                 SELECT COUNT(*) FROM reservations AS m2
-                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = CURDATE()- INTERVAL 3 DAY
+                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date
             ),0) AS total
             
             FROM reservations AS m1
@@ -146,6 +148,14 @@ class Reservation {
         
         try {
             $stmt = $this->conn->prepare($query);
+                if($dateSelected){
+                    $stmt->bindParam(':selected_date',$dateSelected);
+                }
+                else{
+                    $today = date("Y-m-d");
+                    $stmt->bindParam(':selected_date', $today );
+                }
+
             $stmt->execute();
             $stmt = $this->conn->prepare($query2);
             $stmt->execute();
@@ -175,3 +185,7 @@ class Reservation {
 }
 
 ?>
+
+
+
+
