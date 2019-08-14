@@ -656,6 +656,9 @@
             if(option_chart_form.picked_date_chart){
               getChart("daily_chart",option_chart_form);
             }
+            else{
+              getChart("monthly_chart",option_chart_form);
+            }
         
         
         

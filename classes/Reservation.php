@@ -62,16 +62,19 @@ class Reservation {
         return $data;
     }
 
-    public function getCurrentData($select,$dateSelected=null){
-        if($select === 'month'){
+    public function getCurrentData($select,$dateSelected=null,$min_guest=null,$max_guest=null){
+        if($select === 'monthly_chart'){
             //query : count all reservation by monthly from current month -+ 6 months
             $query = "set @date_start := (SELECT CURDATE() - INTERVAL 6 MONTH), 
             @date_end := (SELECT CURDATE() + INTERVAL 6 MONTH), 
-            @i := 0;";
+            @i := 0,
+            @selected_date := :selected_date,
+            @min_guest := :min_guest,
+            @max_guest := :max_guest;";
     
             $query2 ="SELECT EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i:=@i+ 1 MONTH)) AS date1, IFNULL((
                 SELECT COUNT(*) FROM reservations AS m2
-                WHERE EXTRACT(YEAR_MONTH FROM m2.date) = EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i MONTH))
+                WHERE EXTRACT(YEAR_MONTH FROM m2.date) = EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i MONTH)) AND (m2.people BETWEEN @min_guest AND @max_guest)
             ),0) AS total
             , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 MONTH), '%Y %M') AS display_date
             FROM reservations AS m1
@@ -89,14 +92,18 @@ class Reservation {
             //             BY yr ASC, mth ASC;"
             ; 
         }
-        else if($select ==='week'){
+        else if($select ==='weekly_chart'){
             //query count all reservations by daily from current day -+ 6 days
             $query ="set @date_start := (SELECT CURDATE() - INTERVAL 6 DAY), 
             @date_end := (SELECT CURDATE() + INTERVAL 6 DAY), 
-            @i := 0;";
+            @i := 0,
+            @selected_date := :selected_date,
+            @min_guest := :min_guest,
+            @max_guest := :max_guest;";
+
             $query2 = "SELECT DATE(ADDDATE(@date_start, INTERVAL @i:=@i+1 DAY)) AS date1, IFNULL((
                 SELECT COUNT(*) FROM reservations AS m2
-                WHERE DATE(m2.date) = DATE(ADDDATE(@date_start, INTERVAL @i DAY))
+                WHERE DATE(m2.date) = DATE(ADDDATE(@date_start, INTERVAL @i DAY)) AND (m2.people BETWEEN @min_guest AND @max_guest)
             ),0) AS total
             , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 DAY), '%W %m-%d') AS display_date
             FROM reservations AS m1
@@ -113,18 +120,20 @@ class Reservation {
 
 
         }
-        else if ($select === 'day'){
+        else if ($select === 'daily_chart'){
             //query : count all reservations by hourly from 11:00 to 22:00
             $query ="set @time_start := 100000, 
             @time_end := 220000, 
             @i := 0,
             @selected_date := :selected_date,
-            @date_diff = DATEDIFF(CURDATE(),@selected_date);";
+            @date_diff = DATEDIFF(CURDATE(),@selected_date),
+            @min_guest := :min_guest,
+            @max_guest := :max_guest;";
         
             $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL @date_diff DAY,'%W %d %H:00') AS display_date,
             IFNULL((
                 SELECT COUNT(*) FROM reservations AS m2
-                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date
+                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date AND (m2.people BETWEEN @min_guest AND @max_guest)
             ),0) AS total
             
             FROM reservations AS m1
@@ -154,6 +163,20 @@ class Reservation {
                 else{
                     $today = date("Y-m-d");
                     $stmt->bindParam(':selected_date', $today );
+                }
+                if($min_guest){
+                    $stmt->bindParam(':min_guest', $min_guest);
+                }
+                else{
+                    $min_guest = 0;
+                    $stmt->bindParam(':min_guest', $min_guest);
+                }
+                if($max_guest){
+                    $stmt->bindParam(':max_guest', $max_guest);
+                }
+                else{
+                    $max_guest = 6;
+                    $stmt->bindParam(':max_guest', $max_guest);
                 }
 
             $stmt->execute();

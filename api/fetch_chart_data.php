@@ -29,73 +29,98 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     // echo "fetch_chartdata.php".$data."<br/>";
     // echo gettype($_POST['chartOption']);
     
-    // if monthly data requested
+    //initialize  dateSelected min_guest and max_guest 
+    $dateSelected=null;
+    $min_guest = null;
+    $max_guest = null;
+    // if chart data requested by POST
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        if($_POST['chart']==='monthly_chart'){
-            //if data exist
-            
-            if($reser->getCurrentData('month')){
-                http_response_code(200);
-                echo json_encode(array("message" => "fetched data",
-                                    
-                                        "data"=>$reser->getCurrentData('month')));
-            }
-            //if no data
-            else{
-                http_response_code(404);
-                // echo $data;
-                // display message: unable to get data
-                echo json_encode(array("message" => "Unable to fetch data."));
-            }
-        }
-        else if($_POST['chart']=== 'weekly_chart'){
-            //if data exist
-            // echo json_encode(array("message" => "monthly data requested.")); 
-            if($reser->getCurrentData('week')){
-                http_response_code(200);
-                echo json_encode(array("message" => "fetched data",
-                                    
-                                        "data"=>$reser->getCurrentData('week')));
-            }
-            //if no data
-            else{
-                http_response_code(404);
-                // echo $data;
-                // display message: unable to get data
-                echo json_encode(array("message" => "Unable to fetch data."));
-            }
-
-        }
-        else if($_POST['chart']=== 'daily_chart'){
         
-                $dateSelected=null;
-                // when selected date chart requested
-                if($_POST['chartOption']){
-                    if($_POST['chartOption']['picked_date_chart'] !== ""){
-                        $dateSelected = $_POST['chartOption']['picked_date_chart'];
-                    }
+        if($_POST['chart']){
+            // echo $_POST['chart'];
+            //  echo gettype($_POST['chartOption']['min_guest']);
+            //  echo $_POST['chartOption']['max_guest'];
+            $selectChart = $_POST['chart']; 
+            //if option data exist set option data varilbles
+            if($_POST['chartOption']){
+                if($_POST['chartOption']['picked_date_chart'] !== ""){
+                    $dateSelected = $_POST['chartOption']['picked_date_chart'];
                 }
-                
-                    //if data exist
-                // echo json_encode(array("message" => "monthly data requested.")); 
-                if($reser->getCurrentData('day',$dateSelected)){
-                    http_response_code(200);
-                    echo json_encode(array("message" => "fetched data",
-                                        
-                                            "data"=>$reser->getCurrentData('day',$dateSelected)));
+                if($_POST['chartOption']['min_guest'] !== ""){
+                    $min_guest = intval($_POST['chartOption']['min_guest']);
                 }
-                //if no data
-                else{
-                    http_response_code(404);
-                    // echo $data;
-                    // display message: unable to get data
-                    echo json_encode(array("message" => "Unable to fetch data."));
+                if($_POST['chartOption']['max_guest'] !== ""){
+                    $max_guest = intval($_POST['chartOption']['max_guest']);
                 }
-
-            
-            
-
+            }
+            // echo gettype($max_guest);
+            //if return data exist
+            if($reser->getCurrentData($selectChart, $dateSelected, $min_guest, $max_guest)){
+                http_response_code(200);
+                echo json_encode(array("message" => "fetched data",
+                                    
+                                        "data"=>$reser->getCurrentData($_POST['chart'],$dateSelected, $min_guest, $max_guest)));
+            }
+            //if no data
+            else{
+                http_response_code(404);
+                // echo $data;
+                // display message: unable to get data
+                echo json_encode(array("message" => "Unable to fetch data."));
+            }
         }
+        // else if($_POST['chart']=== 'weekly_chart'){
+        //     //if data exist
+        //     // echo json_encode(array("message" => "monthly data requested.")); 
+        //     if($reser->getCurrentData('week')){
+        //         http_response_code(200);
+        //         echo json_encode(array("message" => "fetched data",
+                                    
+        //                                 "data"=>$reser->getCurrentData('week')));
+        //     }
+        //     //if no data
+        //     else{
+        //         http_response_code(404);
+        //         // echo $data;
+        //         // display message: unable to get data
+        //         echo json_encode(array("message" => "Unable to fetch data."));
+        //     }
+
+        // }
+        // else if($_POST['chart']=== 'daily_chart'){
+        
+                
+                
+        //         // when selected date chart requested
+        //         if($_POST['chartOption']){
+        //             if($_POST['chartOption']['picked_date_chart'] !== ""){
+        //                 $dateSelected = $_POST['chartOption']['picked_date_chart'];
+        //             }
+        //             if($_POST['chartOption']['min_guest'] !== ""){
+        //                 $min_guest = $_POST['chartOption']['min_guest'];
+        //             }
+        //         }
+                
+        //             //if data exist
+        //         // echo json_encode(array("message" => "monthly data requested.")); 
+        //         if($reser->getCurrentData('day',$dateSelected)){
+        //             http_response_code(200);
+        //             echo json_encode(array("message" => "fetched data",
+                                        
+        //                                     "data"=>$reser->getCurrentData('day',$dateSelected)));
+        //         }
+        //         //if no data
+        //         else{
+        //             http_response_code(404);
+        //             // echo $data;
+        //             // display message: unable to get data
+        //             echo json_encode(array("message" => "Unable to fetch data."));
+        //         }
+
+            
+            
+
+        // }
         else{
         
 
