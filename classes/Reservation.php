@@ -62,23 +62,44 @@ class Reservation {
         return $data;
     }
 
-    public function getCurrentData($select,$dateSelected=null,$min_guest=null,$max_guest=null){
+    public function getCurrentData($select,$dateSelected=null,$minGuest=null,$maxGuest=null, $userEmail=null){
         if($select === 'monthly_chart'){
-            //query : count all reservation by monthly from current month -+ 6 months
-            $query = "set @date_start := (SELECT CURDATE() - INTERVAL 6 MONTH), 
-            @date_end := (SELECT CURDATE() + INTERVAL 6 MONTH), 
-            @i := 0,
-            @selected_date := :selected_date,
-            @min_guest := :min_guest,
-            @max_guest := :max_guest;";
-    
-            $query2 ="SELECT EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i:=@i+ 1 MONTH)) AS date1, IFNULL((
-                SELECT COUNT(*) FROM reservations AS m2
-                WHERE EXTRACT(YEAR_MONTH FROM m2.date) = EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i MONTH)) AND (m2.people BETWEEN @min_guest AND @max_guest)
-            ),0) AS total
-            , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 MONTH), '%Y %M') AS display_date
-            FROM reservations AS m1
-            HAVING @i < TIMESTAMPDIFF(MONTH, @date_start, @date_end);";
+            //query : count all reservations of user by monthly for whole date
+            if($userEmail){
+                $query = "set @start = (SELECT MIN(date) FROM reservations),
+                    @end = (SELECT MAX(date) FROM reservations),
+                    @selected_date := :selected_date,
+                    @min_guest = :min_guest,
+                    @max_guest = :max_guest,
+                    @user_email = :user_email;";
+
+                $query2 = "SELECT DATE_FORMAT(reservations.date, '%Y %M') AS display_date, COUNT(reservations.date) as total
+                    FROM reservations INNER JOIN users
+                    ON reservations.userid = users.id
+                    WHERE reservations.date BETWEEN DATE(@start) AND  DATE(@end) AND users.email REGEXP concat(@user_email,'?')  AND (reservations.people BETWEEN @min_guest AND @max_guest)
+                    GROUP BY display_date;
+                    ";
+
+            }
+            else{
+                //query : count all reservation by monthly from current month -+ 6 months
+                $query = "set @date_start := (SELECT CURDATE() - INTERVAL 6 MONTH), 
+                @date_end := (SELECT CURDATE() + INTERVAL 6 MONTH), 
+                @i := 0,
+                @selected_date := :selected_date,
+                @min_guest := :min_guest,
+                @max_guest := :max_guest;";
+        
+                $query2 ="SELECT EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i:=@i+ 1 MONTH)) AS date1, IFNULL((
+                    SELECT COUNT(*) FROM reservations AS m2
+                    WHERE EXTRACT(YEAR_MONTH FROM m2.date) = EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i MONTH)) AND (m2.people BETWEEN @min_guest AND @max_guest)
+                ),0) AS total
+                , DATE_FORMAT(ADDDATE(@date_start, INTERVAL @i:=@i+ 0 MONTH), '%Y %M') AS display_date
+                FROM reservations AS m1
+                HAVING @i < TIMESTAMPDIFF(MONTH, @date_start, @date_end);";
+
+            }
+            
             
             // $query = "SELECT YEAR(date) AS yr
             //                 , MONTH(date) AS mth
@@ -90,7 +111,7 @@ class Reservation {
             //             BY yr,mth
             //             ORDER
             //             BY yr ASC, mth ASC;"
-            ; 
+            //; 
         }
         else if($select ==='weekly_chart'){
             //query count all reservations by daily from current day -+ 6 days
@@ -164,20 +185,24 @@ class Reservation {
                     $today = date("Y-m-d");
                     $stmt->bindParam(':selected_date', $today );
                 }
-                if($min_guest){
-                    $stmt->bindParam(':min_guest', $min_guest);
+                if($minGuest){
+                    $stmt->bindParam(':min_guest', $minGuest);
                 }
                 else{
-                    $min_guest = 0;
-                    $stmt->bindParam(':min_guest', $min_guest);
+                    $minGuest = 0;
+                    $stmt->bindParam(':min_guest', $minGuest);
                 }
-                if($max_guest){
-                    $stmt->bindParam(':max_guest', $max_guest);
+                if($maxGuest){
+                    $stmt->bindParam(':max_guest', $maxGuest);
                 }
                 else{
-                    $max_guest = 6;
-                    $stmt->bindParam(':max_guest', $max_guest);
+                    $maxGuest = 6;
+                    $stmt->bindParam(':max_guest', $maxGuest);
                 }
+                if($userEmail){
+                    $stmt->bindParam(':user_email', $userEmail);
+                }
+                
 
             $stmt->execute();
             $stmt = $this->conn->prepare($query2);
@@ -208,7 +233,3 @@ class Reservation {
 }
 
 ?>
-
-
-
-

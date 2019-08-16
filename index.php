@@ -260,7 +260,7 @@
                     
                   <div class="well">
                     <div  class="input-append">
-                      <input id ="user_chart"  type="text" class="form-control" placeholder="Name of user" autocomplete="off" name="picked_user_chart">
+                      <input id ="user_chart"  type="text" class="form-control" placeholder="Email of user" autocomplete="off" name="picked_user_email">
                       <span class="add-on">
                         <i data-time-icon="icon-time" data-date-icon="icon-calendar">
                         </i>

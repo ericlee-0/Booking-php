@@ -31,14 +31,15 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
     
     //initialize  dateSelected min_guest and max_guest 
     $dateSelected=null;
-    $min_guest = null;
-    $max_guest = null;
+    $minGuest = null;
+    $maxGuest = null;
+    $userEmail=null;
     // if chart data requested by POST
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         
         if($_POST['chart']){
             // echo $_POST['chart'];
-            //  echo gettype($_POST['chartOption']['min_guest']);
+            //  echo $_POST['chartOption']['picked_user_email'];
             //  echo $_POST['chartOption']['max_guest'];
             $selectChart = $_POST['chart']; 
             //if option data exist set option data varilbles
@@ -47,19 +48,23 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
                     $dateSelected = $_POST['chartOption']['picked_date_chart'];
                 }
                 if($_POST['chartOption']['min_guest'] !== ""){
-                    $min_guest = intval($_POST['chartOption']['min_guest']);
+                    $minGuest = intval($_POST['chartOption']['min_guest']);
                 }
                 if($_POST['chartOption']['max_guest'] !== ""){
-                    $max_guest = intval($_POST['chartOption']['max_guest']);
+                    $maxGuest = intval($_POST['chartOption']['max_guest']);
+                }
+                if($_POST['chartOption']['picked_user_email']){
+                    $userEmail = $_POST['chartOption']['picked_user_email'];
+                    
                 }
             }
             // echo gettype($max_guest);
             //if return data exist
-            if($reser->getCurrentData($selectChart, $dateSelected, $min_guest, $max_guest)){
+            if($reser->getCurrentData($selectChart, $dateSelected, $minGuest, $maxGuest, $userEmail)){
                 http_response_code(200);
                 echo json_encode(array("message" => "fetched data",
                                     
-                                        "data"=>$reser->getCurrentData($_POST['chart'],$dateSelected, $min_guest, $max_guest)));
+                                        "data"=>$reser->getCurrentData($_POST['chart'],$dateSelected, $minGuest, $maxGuest, $userEmail)));
             }
             //if no data
             else{
