@@ -64,7 +64,7 @@ class Reservation {
 
     public function getCurrentData($select,$dateSelected=null,$minGuest=null,$maxGuest=null, $userEmail=null){
         if($select === 'monthly_chart'){
-            //query : count all reservations of user by monthly for whole date
+            //query : count all reservations of user by monthly for whole date if data is 0, doesn't show
             if($userEmail){
                 $query = "set @start = (SELECT MIN(date) FROM reservations),
                     @end = (SELECT MAX(date) FROM reservations),
@@ -73,11 +73,12 @@ class Reservation {
                     @max_guest = :max_guest,
                     @user_email = :user_email;";
 
-                $query2 = "SELECT DATE_FORMAT(reservations.date, '%Y %M') AS display_date, COUNT(reservations.date) as total
+                $query2 = "SELECT EXTRACT(YEAR_MONTH FROM reservations.date) as date1, DATE_FORMAT(reservations.date, '%Y %M') AS display_date, COUNT(reservations.date) as total
                     FROM reservations INNER JOIN users
                     ON reservations.userid = users.id
                     WHERE reservations.date BETWEEN DATE(@start) AND  DATE(@end) AND users.email REGEXP concat(@user_email,'?')  AND (reservations.people BETWEEN @min_guest AND @max_guest)
-                    GROUP BY display_date;
+                    GROUP BY display_date 
+                    ORDER BY date1;
                     ";
 
             }
@@ -88,6 +89,7 @@ class Reservation {
                 @i := 0,
                 @selected_date := :selected_date,
                 @min_guest := :min_guest,
+                @user_email = :user_email,
                 @max_guest := :max_guest;";
         
                 $query2 ="SELECT EXTRACT(YEAR_MONTH FROM ADDDATE(@date_start, INTERVAL @i:=@i+ 1 MONTH)) AS date1, IFNULL((
@@ -119,6 +121,7 @@ class Reservation {
             @date_end := (SELECT CURDATE() + INTERVAL 6 DAY), 
             @i := 0,
             @selected_date := :selected_date,
+            @user_email = :user_email,
             @min_guest := :min_guest,
             @max_guest := :max_guest;";
 
@@ -144,21 +147,38 @@ class Reservation {
         else if ($select === 'daily_chart'){
             //query : count all reservations by hourly from 11:00 to 22:00
             $query ="set @time_start := 100000, 
-            @time_end := 220000, 
-            @i := 0,
-            @selected_date := :selected_date,
-            @date_diff = DATEDIFF(CURDATE(),@selected_date),
-            @min_guest := :min_guest,
-            @max_guest := :max_guest;";
-        
-            $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL @date_diff DAY,'%W %d %H:00') AS display_date,
-            IFNULL((
-                SELECT COUNT(*) FROM reservations AS m2
-                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date AND (m2.people BETWEEN @min_guest AND @max_guest)
-            ),0) AS total
+                    @time_end := 220000, 
+                    @i := 0,
+                    @selected_date := :selected_date,
+                    @user_email := :user_email,
+                    @date_diff = DATEDIFF(CURDATE(),@selected_date),
+                    @min_guest := :min_guest,
+                    @max_guest := :max_guest;";
+
+            if($userEmail){
+                $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL @date_diff DAY,'%W %d %H:00') AS display_date,
+                        IFNULL((
+                            SELECT COUNT(*) FROM reservations AS m2 INNER JOIN users ON m2.userid = users.id
+                            WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date AND (m2.people BETWEEN @min_guest AND @max_guest) AND users.email REGEXP concat(@user_email,'?')
+                        ),0) AS total
+                        
+                        FROM reservations AS m1
+                        HAVING @i < TIMEDIFF(@time_end, @time_start);";
+                
+            }
+            else{
+                $query2 ="SELECT DATE_FORMAT(ADDTIME(@time_start,  @i := @i + 10000) - INTERVAL @date_diff DAY,'%W %d %H:00') AS display_date,
+                            IFNULL((
+                                SELECT COUNT(*) FROM reservations AS m2 
+                                WHERE HOUR(m2.time) = HOUR(ADDTIME(@time_start,  @i)) AND date = @selected_date AND (m2.people BETWEEN @min_guest AND @max_guest) 
+                            ),0) AS total
+                            
+                            FROM reservations AS m1
+                            HAVING @i < TIMEDIFF(@time_end, @time_start);";
+            }
             
-            FROM reservations AS m1
-            HAVING @i < TIMEDIFF(@time_end, @time_start);";
+        
+            
             
             // $query = "SELECT 
             //                 DAY(date) as day,
@@ -202,7 +222,10 @@ class Reservation {
                 if($userEmail){
                     $stmt->bindParam(':user_email', $userEmail);
                 }
-                
+                else{
+                    
+                    $stmt->bindValue(':user_email',null);
+                }
 
             $stmt->execute();
             $stmt = $this->conn->prepare($query2);
@@ -226,8 +249,47 @@ class Reservation {
 
     }
 
-    public function getWeeklyData($date){
-        //query : coun all reserved seat of current week
+    public function getUserData($userEmail, $dateSelected=null){
+        //query : return all reservations by user email
+        if($dateSelected){ // if selected date exist
+            $query = "SELECT t1.id as booking_id, t1.userid, t1.date, t1.time, t1.people, t1.created, t1.modified, t2.username, t2.email  FROM reservations as t1 
+                    LEFT JOIN users as t2 ON t1.userid = t2.id 
+                    WHERE  t2.email REGEXP concat(:user_email,'?') AND t1.date = :date_selected
+                  ORDER BY t1.date;";
+        }else{
+            $query = "SELECT t1.id as booking_id, t1.userid, t1.date, t1.time, t1.people, t1.created, t1.modified, t2.username, t2.email  FROM reservations as t1 
+                    LEFT JOIN users as t2 ON t1.userid = t2.id 
+                    WHERE t2.email REGEXP concat(:user_email,'?') 
+                  ORDER BY t1.date;";
+
+        }
+        
+        
+
+        try{
+
+            $stmt = $this->conn->prepare($query);
+            
+            $stmt->bindParam(':user_email', $userEmail);
+
+            if($dateSelected){
+                $stmt->bindParam(':date_selected', $dateSelected);
+            }
+            
+
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+            if(empty($result)){
+                return null;
+            }
+            return $result;
+        }
+        catch(PDOException $e){
+            echo $e->getMessage();
+            die();
+        }
+        
+
 
     }
 }

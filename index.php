@@ -260,7 +260,7 @@
                     
                   <div class="well">
                     <div  class="input-append">
-                      <input id ="user_chart"  type="text" class="form-control" placeholder="Email of user" autocomplete="off" name="picked_user_email">
+                      <input id ="user_chart"  type="text" class="form-control" placeholder="ex)cccc@cc.com" autocomplete="off" name="picked_user_email">
                       <span class="add-on">
                         <i data-time-icon="icon-time" data-date-icon="icon-calendar">
                         </i>
@@ -321,7 +321,7 @@
         </div>
         <div class="row">
             <div class="col-sm">
-                <div id="barchart_weekly_div" ></div>
+                <div id="user_reservation_list" ></div>
             </div>
             <br/>
             <br>
@@ -436,6 +436,17 @@
           x.style.display = "none";
         }
     }
+    
+
+
+    $('body').on('submit', '.book_result_form', function(e) {
+       e.preventDefault();  
+     
+        $(this).next().toggle();
+        
+    });
+
+  
 
   
 
@@ -445,78 +456,7 @@
       google.charts.setOnLoadCallback(drawChartMonthly);
 
       $('#div_monthly_chart').hide();
-/*
-      function drawChartDaily() {
-        var data = google.visualization.arrayToDataTable([
-          ['Day', 'Reserved Seat'],
-          ['11:00', 4],
-          ['12:00', 6],
-          ['13:00', 8],
-          ['14:00', 5],
-          ['15:00', 4],
-          ['16:00', 8],
-          ['17:00', 9],
-          ['18:00', 12],
-          ['19:00', 14],
-          ['20:00', 16],
-          ['21:00', 4]
-        ]);
 
-        var options = {
-          chart: {
-            title: 'Reservation Status',
-            subtitle: 'Reserved seat by Daily'
-          },
-          bars: 'vertical',
-          vAxis: {format: 'decimal'},
-          height: 400,
-          width:800,
-          colors: ['#5691f0']
-        };
-
-        var chart = new google.charts.Bar(document.getElementById('barchart_daily_div'));
-
-        chart.draw(data, google.charts.Bar.convertOptions(options));
-
-        
-      }
-
-      function drawChartWeekly() {
-        var data = google.visualization.arrayToDataTable([
-          ['Week', 'Reserved Seat'],
-          ['Monday', 50],
-          ['Tuesday', 57],
-          ['Wendesday', 66],
-          ['Thrusday', 103],
-          ['Friday', 103],
-          ['Saturday', 83],
-          ['Sunday', 153]
-        ]);
-
-        var options = {
-          chart: {
-            title: 'Reservation Status',
-            subtitle: 'Reserved seat by week',
-          },
-          bars: 'vertical',
-          vAxis: {format: 'decimal'},
-          height: 400,
-          width:800,
-          colors: ['#1b9e77']
-        };
-
-        var chart = new google.charts.Bar(document.getElementById('barchart_weekly_div'));
-
-        chart.draw(data, google.charts.Bar.convertOptions(options));
-
-        
-      }
-      function selectedButton(){
-        // console.log(event.srcElement.id);
-        return event.srcElement.id;
-      }
-      
-      */
 
       function drawChartMonthly() {
         
@@ -595,10 +535,26 @@
               
                     },
               success : function(result) {
+                //reset rawData2
+                rawData2 = [
+                              ['Month', 'Reserved Seat']
+                            ];
                   
                   //set rawData2 with result data (month & reserved seat)
                 var i=1;
                 console.log(result);
+                
+                
+                // if user was selected
+                if(result.userData){
+
+                  //create list of reservation data of the user
+                  $('#user_reservation_list').empty();
+
+                  result.userData.map((data)=>{
+                    showBookResult(data);
+                  })
+                }
               
                 
                 //set chart title and color
@@ -664,67 +620,72 @@
         
         });
 
+         // show login page
+        function showBookResult(result){
+        
+        // remove jwt
+        // setCookie("jwt", "", 1);
+
+        // login page html
+        // console.log(typeof result);
+        var html = `
+            
+            <form class='book_result_form'>
+                <div class='form-group row' >
+                <div class="col-sm-10 " style="background-color: lightgoldenrodyellow;padding-top:5px">
+                    
+                    <div >
+                        Ref.#: <span class='reserved_id'>`+result.booking_id+`</span>
+                        Name: <span class='reserved_name'>`+result.username+`</span>
+                        Date: <span class='reserved_date'>`+result.date+`</span>
+                        Time: <span class='reserved_time'>`+result.time+`</span>
+                        People: <span class='reserved_people'>`+result.people+`</span>
+                        
+                        
+                        
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                <button type='submit' class='btn btn-light btn-block float-right' >Detail</button>
+                </div>
+                </div>
+                
+            </form>
+            <div class="booking_detail" style="display:none" >
+            
+              <div> Booking Reference Number : `+result.booking_id+`</div>
+              <div> Booking Created time : `+result.created+` </div>
+              <div> Name of User : `+result.username+` </div>
+              <div> Email of User : `+result.email+` </div>
+              <div> Booking Date : `+result.date+` </div>
+              <div> Booking Time : `+result.time+` </div>
+              <div> Number of Guests : `+result.people+` </div>
+              
+
+            
+            
+            </div>
+            `;
+        
+        $('#user_reservation_list').append(html);
+        // $('.reserved_name').html(result.username);
+        // $('.reserved_date').html(result.date);
+        // $('.reserved_time').html(result.time);
+        // $('.reserved_people').html(result.people);
+        // clearResponse();
+        // showLoggedOutMenu();
+        }
+
+
+        
+        
+
 
 
         
       }
 
-          // trigger when advanced_chart_form form is submitted
-      // $(document).on('submit', '#option_chart_form', function(e){
-        
-      //   e.preventDefault();
-      //   // get form data
-      //   var option_chart_form=$(this);
-      //     option_chart_form = option_chart_form.serializeObject();
-        
-        //validate reservaion date and time
-      //   if(!sign_up_form.picked_date){
-      //     alert('Choose date');
-      //     return false;
-      //   }
-      //   if(!sign_up_form.picked_time){
-      //     alert('Choose time');
-      //     return false;
-      //   }
-      //   //get userId from the cookie
-      //   if(getCookie('userId')){  
-      //     sign_up_form['userId'] = getCookie('userId');
-
-      //     var form_data=JSON.stringify(sign_up_form);
-      //     console.log(form_data);
-      //   //submit form data to api
-      //     $.ajax({
-      //         url: "api/create_reservation.php",
-      //         type : "POST",
-      //         contentType : 'application/json',
-      //         dataType:'text',
-      //         data : form_data,
-      //         success : function(result) {
-      //             // if response is a success, tell the user it was a successful sign up & empty the input boxes
-                  
-      //             showBookResult(sign_up_form);
-                  
-      //             console.log(result);
-      //         },
-      //         error: function(xhr, resp, text){
-      //             // on error, tell the user reservation failed
-                  
-      //             console.log(xhr, resp, text);
-      //         }
-      //     });
-      //   }
-      //   //if no userId then go login form
-      //   else{
-          
-      //     setCookie('reservInfo',JSON.stringify(sign_up_form),1);
-      //     console.log(getCookie('reservInfo'));
-      //     $('#loginModal').modal('show');
-      //   }
-
-        
-
-      //   return false;
-      // });
+   
   </script>
 
 </body>

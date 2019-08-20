@@ -64,7 +64,10 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
                 http_response_code(200);
                 echo json_encode(array("message" => "fetched data",
                                     
-                                        "data"=>$reser->getCurrentData($_POST['chart'],$dateSelected, $minGuest, $maxGuest, $userEmail)));
+                                        "data"=>$reser->getCurrentData($_POST['chart'],$dateSelected, $minGuest, $maxGuest, $userEmail),
+
+                                        "userData" => $reser->getUserData($userEmail,$dateSelected) 
+                                    ));
             }
             //if no data
             else{
