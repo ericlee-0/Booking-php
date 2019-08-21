@@ -535,6 +535,9 @@
               
                     },
               success : function(result) {
+                
+                
+
                 //reset rawData2
                 rawData2 = [
                               ['Month', 'Reserved Seat']
@@ -582,8 +585,16 @@
                   // console.log(result);
               },
               error: function(xhr, resp, text){
+                //empty the result tag  
+                $('#user_reservation_list').empty();
                   // on error, tell the error message
+
+                  if(xhr.status == 404){
                   
+                    $('#user_reservation_list').append("<h2>No Reservations</h2>");
+                    
+                    
+                }
                   console.log(xhr, resp, text);
               }
           });
